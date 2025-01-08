@@ -200,7 +200,7 @@ module Fastlane
 
         begin
           restclient_post("https://#{host}/v1/apps", verify_ssl, {
-            "filename" => filename,
+            "filename" => "Filename App",
             "appPath" => app_path
           }, headers)
 
