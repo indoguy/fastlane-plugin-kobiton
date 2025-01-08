@@ -7,7 +7,7 @@ module Fastlane
       def self.run(params)
         require "base64"
 
-        host = params[:host]
+        host = params[:host] || "api.kobiton.com"
         username = params[:username]
         api_key = params[:api_key]
         verify_ssl = params[:verify_ssl] || true
