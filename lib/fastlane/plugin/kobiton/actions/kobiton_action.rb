@@ -25,7 +25,7 @@ module Fastlane
 
         UI.message("Getting upload URL...")
 
-        kobiton_upload_pair = self.get_upload_url(host, verify_ssl, "FileName App", app_id, authorization)
+        kobiton_upload_pair = self.get_upload_url(host, verify_ssl, filename, app_id, authorization)
 
         UI.message("Got upload URL.")
 
@@ -200,7 +200,7 @@ module Fastlane
 
         begin
           restclient_post("https://#{host}/v1/apps", verify_ssl, {
-            "filename" => filename,
+            "file_name" => "SF-Android-Stable.apk",
             "appPath" => app_path
           }, headers)
 
