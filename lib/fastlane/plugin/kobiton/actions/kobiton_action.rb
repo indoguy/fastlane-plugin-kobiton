@@ -220,10 +220,10 @@ module Fastlane
             :verify_ssl => verify_ssl
           )
 
-          response = restClient.post{
+          response = restClient.post({
             "filename" => filename,
             "appPath" => app_path
-          }
+          })
 
         rescue RestClient::Exception => e
           UI.user_error!("Kobiton could not be notified, status code: #{e.response.code}, message: #{e.response.body}")
