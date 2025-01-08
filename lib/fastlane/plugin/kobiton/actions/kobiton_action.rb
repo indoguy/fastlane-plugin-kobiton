@@ -10,8 +10,7 @@ module Fastlane
         host = params[:host] || "api.kobiton.com"
         username = params[:username]
         api_key = params[:api_key]
-        param_verify_ssl = params[:verify_ssl] || 'true'
-        verify_ssl = param_verify_ssl.to_bol
+        verify_ssl = params[:verify_ssl].to_bol || true
 
         # Must use strict encoding because encode64() will insert
         # a new line every 60 characters and at the end of the
@@ -125,7 +124,7 @@ module Fastlane
               UI.user_error!("No app ID or value 0 for KobitonUpload given, pass using `app_id: <app_id>`") unless value && value != 0
             end,
             optional: true,
-            type: Integer
+            type: String
           )
         ]
       end
@@ -134,15 +133,11 @@ module Fastlane
         [:ios, :android].include?(platform)
       end
 
-      def self.restclient_get(url, verify_ssl, headers={}, &block)
-        RestClient::Request.execute(verify_ssl: false, method: :get, url: url, headers: headers, &block)
-      end
-
       def self.restclient_post(url, verify_ssl, payload, headers={}, &block)
-        RestClient::Request.execute(verify_ssl: false, method: :post, url: url, payload: payload, headers: headers, &block)
+        RestClient::Request.execute(verify_ssl: verify_ssl.to_i, method: :post, url: url, payload: payload, headers: headers, &block)
       end
       def self.restclient_put(url, verify_ssl, payload, headers={}, &block)
-        RestClient::Request.execute(verify_ssl: false, method: :put, url: url, payload: payload, headers: headers, &block)
+        RestClient::Request.execute(verify_ssl: verify_ssl.to_i, method: :put, url: url, payload: payload, headers: headers, &block)
       end
 
       def self.get_upload_url(host, verify_ssl, filename, app_id, authorization)
@@ -160,7 +155,7 @@ module Fastlane
           if app_id
             response = restclient_post("https://#{host}/v1/apps/uploadUrl", verify_ssl, {
               "filename" => filename,
-              "appId" => app_id,
+              "appId" => app_id.to_i,
             }, headers)
           else 
             response = restclient_post("https://#{host}/v1/apps/uploadUrl", verify_ssl, {
@@ -168,21 +163,6 @@ module Fastlane
             }, headers)
           end
 
-          # restClient = RestClient::Request.new(
-          #   "https://#{host}/v1/apps/uploadUrl",
-          #   verify_ssl: verify_ssl
-          # )
-
-          # if app_id 
-          #   response = restClient.post({
-          #     "filename" => filename,
-          #     "appId" => app_id,
-          #   })
-          # else
-          #   response = restClient.post({
-          #     "filename" => filename
-          #   }.to_json, headers)
-          # end
           
 
         rescue RestClient::Exception => e
@@ -201,13 +181,7 @@ module Fastlane
         }
 
         begin
-          response = restclient_put(url, verify_ssl, File.read(filepath), headers, {:verify_ssl => verify_ssl})
-          # restClient = RestClient::Request.new(
-          #   url,
-          #   verify_ssl: verify_ssl
-          # )
-
-          # response = restClient.put(File.read(filepath), headers)
+          response = restclient_put(url, verify_ssl, File.read(filepath), headers)
           
         rescue RestClient::Exception => e
           UI.user_error!("Uploading the binary to repo failed with status code #{e.response.code}, message: #{e.response.body}")
@@ -225,20 +199,10 @@ module Fastlane
         }
 
         begin
-          restclient_post("https://#{host}v1/apps", verify_ssl, {
+          restclient_post("https://#{host}/v1/apps", verify_ssl, {
             "filename" => filename,
             "appPath" => app_path
           }, headers)
-
-          # restClient = RestClient::Request.new(
-          #   "https://#{host}v1/apps",
-          #   verify_ssl: verify_ssl
-          # )
-
-          # response = restClient.post({
-          #   "filename" => filename,
-          #   "appPath" => app_path
-          # }.to_json, headers)
 
         rescue RestClient::Exception => e
           UI.user_error!("Kobiton could not be notified, status code: #{e.response.code}, message: #{e.response.body}")
