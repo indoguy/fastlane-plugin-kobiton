@@ -200,7 +200,7 @@ module Fastlane
 
         begin
           restclient_post("https://#{host}/v1/apps", verify_ssl, {
-            "fileName" => "SF-Android-Stable.apk",
+            "filename" => filename,
             "appPath" => app_path
           }, headers)
 
