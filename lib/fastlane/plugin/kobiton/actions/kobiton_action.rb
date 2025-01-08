@@ -159,7 +159,7 @@ module Fastlane
 
           restClient = RestClient::Request.new(
             "https://#{host}/v1/apps/uploadUrl",
-            :verify_ssl => verify_ssl
+            verify_ssl: verify_ssl
           )
 
           if app_id 
@@ -193,7 +193,7 @@ module Fastlane
           #response = RestClient.put(url, File.read(filepath), headers, {:verify_ssl => verify_ssl})
           restClient = RestClient::Request.new(
             url,
-            :verify_ssl => verify_ssl
+            verify_ssl: verify_ssl
           )
 
           response = restClient.put(File.read(filepath), headers)
@@ -221,7 +221,7 @@ module Fastlane
 
           restClient = RestClient::Request.new(
             "https://#{host}v1/apps",
-            :verify_ssl => verify_ssl
+            verify_ssl: verify_ssl
           )
 
           response = restClient.post({
