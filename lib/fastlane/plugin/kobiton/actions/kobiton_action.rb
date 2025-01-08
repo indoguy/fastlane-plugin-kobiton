@@ -201,7 +201,7 @@ module Fastlane
         }
 
         begin
-          response = restClient_put(url, verify_ssl, File.read(filepath), headers, {:verify_ssl => verify_ssl})
+          response = restclient_put(url, verify_ssl, File.read(filepath), headers, {:verify_ssl => verify_ssl})
           # restClient = RestClient::Request.new(
           #   url,
           #   verify_ssl: verify_ssl
@@ -225,7 +225,7 @@ module Fastlane
         }
 
         begin
-          restClient_post("https://#{host}v1/apps", verify_ssl, {
+          restclient_post("https://#{host}v1/apps", verify_ssl, {
             "filename" => filename,
             "appPath" => app_path
           }, headers)
