@@ -11,7 +11,7 @@ module Fastlane
         username = params[:username]
         api_key = params[:api_key]
         param_verify_ssl = params[:verify_ssl] || 'true'
-        verify_ssl = param_verify_ssl.to_boolean
+        verify_ssl = param_verify_ssl.to_bol
 
         # Must use strict encoding because encode64() will insert
         # a new line every 60 characters and at the end of the
