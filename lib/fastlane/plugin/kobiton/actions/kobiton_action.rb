@@ -10,7 +10,8 @@ module Fastlane
         host = params[:host] || "api.kobiton.com"
         username = params[:username]
         api_key = params[:api_key]
-        verify_ssl = params[:verify_ssl] || true
+        param_verify_ssl = params[:verify_ssl] || 'true'
+        verify_ssl = param_verify_ssl.to_boolean
 
         # Must use strict encoding because encode64() will insert
         # a new line every 60 characters and at the end of the
@@ -66,6 +67,26 @@ module Fastlane
 
       def self.available_options
         [
+          FastlaneCore::ConfigItem.new(
+            key: :host,
+            env_name: "FL_KOBITON_HOST",
+            description: "Kobiton host server",
+            verify_block: proc do |value|
+              UI.user_error!("No Host for KobitonUpload given, pass using `host: 'ipaddress/domain'`") unless value && !value.empty?
+            end,
+            optional: false,
+            type: String
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :verify_ssl,
+            env_name: "FL_KOBITON_VERIFY_SSL",
+            description: "Flag to bypass ssl cert to Kobiton",
+            verify_block: proc do |value|
+              UI.user_error!("No flag for KobitonUpload given, pass using `verify_ssl: 'true/false'`") unless value && !value.empty?
+            end,
+            optional: false,
+            type: String
+          ),
           FastlaneCore::ConfigItem.new(
             key: :api_key,
             env_name: "FL_KOBITON_API_KEY",
