@@ -150,15 +150,24 @@ module Fastlane
           #   "appId" => app_id,
           # }, headers, :verify_ssl => verify_ssl)
 
-          response = RestClient::Request.execute(
-            :method => :post, 
-            :url => "https://#{host}/v1/apps/uploadUrl", 
-            :payload => {
-              "filename" => filename,
-              "appId" => app_id,
-            }, 
-            :headers => headers, 
-            :verify_ssl => verify_ssl)
+          # response = RestClient::Request.execute(
+          #   :method => :post, 
+          #   :url => "https://#{host}/v1/apps/uploadUrl", 
+          #   :body => , 
+          #   :headers => headers, 
+          #   :verify_ssl => verify_ssl)
+
+          restClient = RestClient::Request.new(
+            :url => "https://#{host}/v1/apps/uploadUrl",
+            :headers => headers,
+            :verify_ssl => verify_ssl
+          )
+
+          response = restClient.post({
+            "filename" => filename,
+            "appId" => app_id,
+          })
+
         rescue RestClient::Exception => e
           UI.user_error!("URL retrieval failed status code #{e.response.code}, message from server:  #{e.response.body}")
         end
@@ -175,14 +184,15 @@ module Fastlane
         }
 
         begin
-          #response = RestClient.put(url, File.read(filepath), headers, :verify_ssl => verify_ssl)
-          response = RestClient::Request.execute(
-            :mode => :put,
+          #response = RestClient.put(url, File.read(filepath), headers, {:verify_ssl => verify_ssl})
+          restClient = RestClient::Request.new(
             :url => url,
-            :payload => File.read(filepath),
             :headers => headers,
             :verify_ssl => verify_ssl
           )
+
+          response = restClient.put(File.read(filepath))
+          
         rescue RestClient::Exception => e
           UI.user_error!("Uploading the binary to repo failed with status code #{e.response.code}, message: #{e.response.body}")
         end
@@ -202,18 +212,18 @@ module Fastlane
           # RestClient.post("https://#{host}v1/apps", {
           #   "filename" => filename,
           #   "appPath" => app_path
-          # }, headers, :verify_ssl => verify_ssl)
+          # }, headers, {:verify_ssl => verify_ssl})
 
-          response = RestClient::Request.execute(
-            :method => :post,
+          restClient = RestClient::Request.new(
             :url => "https://#{host}v1/apps",
-            :payload => {
-                "filename" => filename,
-                "appPath" => app_path
-              },
             :headers => headers,
             :verify_ssl => verify_ssl
           )
+
+          response = restClient.post{
+            "filename" => filename,
+            "appPath" => app_path
+          }
 
         rescue RestClient::Exception => e
           UI.user_error!("Kobiton could not be notified, status code: #{e.response.code}, message: #{e.response.body}")
