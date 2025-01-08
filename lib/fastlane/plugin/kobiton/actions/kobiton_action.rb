@@ -134,6 +134,17 @@ module Fastlane
         [:ios, :android].include?(platform)
       end
 
+      def self.restclient_get(url, verify_ssl, headers={}, &block)
+        RestClient::Request.execute(verify_ssl: false, method: :get, url: url, headers: headers, &block)
+      end
+
+      def self.restclient_post(url, verify_ssl, payload, headers={}, &block)
+        RestClient::Request.execute(verify_ssl: false, method: :post, url: url, payload: payload, headers: headers, &block)
+      end
+      def self.restclient_put(url, verify_ssl, payload, headers={}, &block)
+        RestClient::Request.execute(verify_ssl: false, method: :put, url: url, payload: payload, headers: headers, &block)
+      end
+
       def self.get_upload_url(host, verify_ssl, filename, app_id, authorization)
         require "rest-client"
         require "json"
@@ -145,26 +156,33 @@ module Fastlane
         }
 
         begin
-          # response = RestClient.post("https://#{host}/v1/apps/uploadUrl", {
-          #   "filename" => filename,
-          #   "appId" => app_id,
-          # }, headers, :verify_ssl => verify_ssl)
 
-          restClient = RestClient::Request.new(
-            "https://#{host}/v1/apps/uploadUrl",
-            verify_ssl: verify_ssl
-          )
-
-          if app_id 
-            response = restClient.post({
+          if app_id
+            response = restclient_post("https://#{host}/v1/apps/uploadUrl", verify_ssl, {
               "filename" => filename,
               "appId" => app_id,
-            })
-          else
-            response = restClient.post({
+            }, headers)
+          else 
+            response = restclient_post("https://#{host}/v1/apps/uploadUrl", verify_ssl, {
               "filename" => filename
-            }.to_json, headers)
+            }, headers)
           end
+
+          # restClient = RestClient::Request.new(
+          #   "https://#{host}/v1/apps/uploadUrl",
+          #   verify_ssl: verify_ssl
+          # )
+
+          # if app_id 
+          #   response = restClient.post({
+          #     "filename" => filename,
+          #     "appId" => app_id,
+          #   })
+          # else
+          #   response = restClient.post({
+          #     "filename" => filename
+          #   }.to_json, headers)
+          # end
           
 
         rescue RestClient::Exception => e
@@ -183,13 +201,13 @@ module Fastlane
         }
 
         begin
-          #response = RestClient.put(url, File.read(filepath), headers, {:verify_ssl => verify_ssl})
-          restClient = RestClient::Request.new(
-            url,
-            verify_ssl: verify_ssl
-          )
+          response = restClient_put(url, verify_ssl, File.read(filepath), headers, {:verify_ssl => verify_ssl})
+          # restClient = RestClient::Request.new(
+          #   url,
+          #   verify_ssl: verify_ssl
+          # )
 
-          response = restClient.put(File.read(filepath), headers)
+          # response = restClient.put(File.read(filepath), headers)
           
         rescue RestClient::Exception => e
           UI.user_error!("Uploading the binary to repo failed with status code #{e.response.code}, message: #{e.response.body}")
@@ -207,20 +225,20 @@ module Fastlane
         }
 
         begin
-          # RestClient.post("https://#{host}v1/apps", {
-          #   "filename" => filename,
-          #   "appPath" => app_path
-          # }, headers, {:verify_ssl => verify_ssl})
-
-          restClient = RestClient::Request.new(
-            "https://#{host}v1/apps",
-            verify_ssl: verify_ssl
-          )
-
-          response = restClient.post({
+          restClient_post("https://#{host}v1/apps", verify_ssl, {
             "filename" => filename,
             "appPath" => app_path
-          }.to_json, headers)
+          }, headers)
+
+          # restClient = RestClient::Request.new(
+          #   "https://#{host}v1/apps",
+          #   verify_ssl: verify_ssl
+          # )
+
+          # response = restClient.post({
+          #   "filename" => filename,
+          #   "appPath" => app_path
+          # }.to_json, headers)
 
         rescue RestClient::Exception => e
           UI.user_error!("Kobiton could not be notified, status code: #{e.response.code}, message: #{e.response.body}")
