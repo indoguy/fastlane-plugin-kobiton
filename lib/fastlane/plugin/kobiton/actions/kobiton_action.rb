@@ -124,7 +124,7 @@ module Fastlane
               UI.user_error!("No app ID or value 0 for KobitonUpload given, pass using `app_id: <app_id>`") unless value && value != 0
             end,
             optional: true,
-            type: Integer
+            type: String
           )
         ]
       end
