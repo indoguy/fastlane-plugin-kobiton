@@ -163,16 +163,16 @@ module Fastlane
             :verify_ssl => verify_ssl
           )
 
-          if (app_id) {
+          if app_id 
             response = restClient.post({
               "filename" => filename,
               "appId" => app_id,
             })
-          } else {
+          else
             response = restClient.post({
               "filename" => filename
             }.to_json)
-          }
+          end
           
 
         rescue RestClient::Exception => e
