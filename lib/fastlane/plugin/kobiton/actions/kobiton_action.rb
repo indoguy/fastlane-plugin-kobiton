@@ -150,13 +150,6 @@ module Fastlane
           #   "appId" => app_id,
           # }, headers, :verify_ssl => verify_ssl)
 
-          # response = RestClient::Request.execute(
-          #   :method => :post, 
-          #   :url => "https://#{host}/v1/apps/uploadUrl", 
-          #   :body => , 
-          #   :headers => headers, 
-          #   :verify_ssl => verify_ssl)
-
           restClient = RestClient::Request.new(
             "https://#{host}/v1/apps/uploadUrl",
             verify_ssl: verify_ssl
