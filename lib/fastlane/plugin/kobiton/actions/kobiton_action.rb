@@ -74,7 +74,7 @@ module Fastlane
             verify_block: proc do |value|
               UI.user_error!("No Host for KobitonUpload given, pass using `host: 'ipaddress/domain'`") unless value && !value.empty?
             end,
-            optional: false,
+            optional: true,
             type: String
           ),
           FastlaneCore::ConfigItem.new(
@@ -84,7 +84,7 @@ module Fastlane
             verify_block: proc do |value|
               UI.user_error!("No flag for KobitonUpload given, pass using `verify_ssl: 'true/false'`") unless value && !value.empty?
             end,
-            optional: false,
+            optional: true,
             type: String
           ),
           FastlaneCore::ConfigItem.new(
@@ -124,7 +124,7 @@ module Fastlane
             verify_block: proc do |value|
               UI.user_error!("No app ID or value 0 for KobitonUpload given, pass using `app_id: <app_id>`") unless value && value != 0
             end,
-            optional: false,
+            optional: true,
             type: Integer
           )
         ]
@@ -163,10 +163,17 @@ module Fastlane
             :verify_ssl => verify_ssl
           )
 
-          response = restClient.post({
-            "filename" => filename,
-            "appId" => app_id,
-          })
+          if (app_id) {
+            response = restClient.post({
+              "filename" => filename,
+              "appId" => app_id,
+            })
+          } else {
+            response = restClient.post({
+              "filename" => filename
+            }.to_json)
+          }
+          
 
         rescue RestClient::Exception => e
           UI.user_error!("URL retrieval failed status code #{e.response.code}, message from server:  #{e.response.body}")
@@ -223,7 +230,7 @@ module Fastlane
           response = restClient.post({
             "filename" => filename,
             "appPath" => app_path
-          })
+          }.to_json)
 
         rescue RestClient::Exception => e
           UI.user_error!("Kobiton could not be notified, status code: #{e.response.code}, message: #{e.response.body}")
