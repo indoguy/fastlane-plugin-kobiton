@@ -158,7 +158,7 @@ module Fastlane
           #   :verify_ssl => verify_ssl)
 
           restClient = RestClient::Request.new(
-            :url => "https://#{host}/v1/apps/uploadUrl",
+            "https://#{host}/v1/apps/uploadUrl",
             :headers => headers,
             :verify_ssl => verify_ssl
           )
@@ -193,7 +193,7 @@ module Fastlane
         begin
           #response = RestClient.put(url, File.read(filepath), headers, {:verify_ssl => verify_ssl})
           restClient = RestClient::Request.new(
-            :url => url,
+            url,
             :headers => headers,
             :verify_ssl => verify_ssl
           )
@@ -222,7 +222,7 @@ module Fastlane
           # }, headers, {:verify_ssl => verify_ssl})
 
           restClient = RestClient::Request.new(
-            :url => "https://#{host}v1/apps",
+            "https://#{host}v1/apps",
             :headers => headers,
             :verify_ssl => verify_ssl
           )
