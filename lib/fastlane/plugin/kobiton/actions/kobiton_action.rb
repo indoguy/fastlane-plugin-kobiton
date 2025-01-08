@@ -7,8 +7,10 @@ module Fastlane
       def self.run(params)
         require "base64"
 
+        host = params[:host]
         username = params[:username]
         api_key = params[:api_key]
+        verify_ssl = params[:verify_ssl] || true
 
         # Must use strict encoding because encode64() will insert
         # a new line every 60 characters and at the end of the
@@ -21,26 +23,26 @@ module Fastlane
 
         filename = File.basename(filepath)
 
-        UI.message("Getting S3 upload URL...")
+        UI.message("Getting upload URL...")
 
-        kobiton_upload_pair = self.get_s3_upload_url(filename, app_id, authorization)
+        kobiton_upload_pair = self.get_upload_url(host, verify_ssl, filename, app_id, authorization)
 
-        UI.message("Got S3 upload URL.")
+        UI.message("Got upload URL.")
 
         app_path = kobiton_upload_pair["appPath"]
         upload_url = kobiton_upload_pair["url"]
 
-        UI.message("Uploading the build to Amazon S3 storage...")
+        UI.message("Uploading the build to storage...")
 
-        upload_success = self.upload_to_s3(upload_url, filepath)
+        upload_success = self.upload_file(upload_url, verify_ssl, filepath)
 
         if upload_success
-          UI.message("Successfully uploaded the build to Amazon S3 storage.")
+          UI.message("Successfully uploaded the build to storage.")
         else
-          UI.user_error!("Failed to upload the build to Amazon S3 storage.")
+          UI.user_error!("Failed to upload the build to storage.")
         end
 
-        self.notify_kobiton_after_file_upload(app_path, filename, authorization)
+        self.notify_kobiton_after_file_upload(host, verify_ssl, app_path, filename, authorization)
 
         UI.message("Successfully uploaded the build to Kobiton!")
       end
@@ -111,7 +113,7 @@ module Fastlane
         [:ios, :android].include?(platform)
       end
 
-      def self.get_s3_upload_url(filename, app_id, authorization)
+      def self.get_upload_url(host, verify_ssl, filename, app_id, authorization)
         require "rest-client"
         require "json"
 
@@ -122,18 +124,18 @@ module Fastlane
         }
 
         begin
-          response = RestClient.post("https://api.kobiton.com/v1/apps/uploadUrl", {
+          response = RestClient.post("https://#{host}/v1/apps/uploadUrl", {
             "filename" => filename,
-            "appId" => app_id
-          }, headers)
+            "appId" => app_id,
+          }, headers, :verify_ssl => verify_ssl)
         rescue RestClient::Exception => e
-          UI.user_error!("S3 URL retrieval failed status code #{e.response.code}, message from server:  #{e.response.body}")
+          UI.user_error!("URL retrieval failed status code #{e.response.code}, message from server:  #{e.response.body}")
         end
 
         return JSON.parse(response)
       end
 
-      def self.upload_to_s3(url, filepath)
+      def self.upload_file(url, verify_ssl, filepath)
         require "rest-client"
 
         headers = {
@@ -142,15 +144,15 @@ module Fastlane
         }
 
         begin
-          response = RestClient.put(url, File.read(filepath), headers)
+          response = RestClient.put(url, File.read(filepath), headers, :verify_ssl => verify_ssl)
         rescue RestClient::Exception => e
-          UI.user_error!("Uploading the binary to S3 failed with status code #{e.response.code}, message: #{e.response.body}")
+          UI.user_error!("Uploading the binary to repo failed with status code #{e.response.code}, message: #{e.response.body}")
         end
 
         return response.code == 200
       end
 
-      def self.notify_kobiton_after_file_upload(app_path, filename, authorization)
+      def self.notify_kobiton_after_file_upload(host, verify_ssl, app_path, filename, authorization)
         require "rest-client"
 
         headers = {
@@ -159,10 +161,10 @@ module Fastlane
         }
 
         begin
-          RestClient.post("https://api.kobiton.com/v1/apps", {
+          RestClient.post("https://#{host}v1/apps", {
             "filename" => filename,
             "appPath" => app_path
-          }, headers)
+          }, headers, :verify_ssl => verify_ssl)
         rescue RestClient::Exception => e
           UI.user_error!("Kobiton could not be notified, status code: #{e.response.code}, message: #{e.response.body}")
         end
