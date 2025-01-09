@@ -21,7 +21,7 @@ module Fastlane
         filepath = params[:file]
         app_id = params[:app_id]
 
-        filename = "MyApp.apk"#File.basename(filepath)
+        filename = File.basename(filepath)
 
         UI.message("Getting upload URL...")
 
