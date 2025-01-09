@@ -156,11 +156,11 @@ module Fastlane
             response = restclient_post("https://#{host}/v1/apps/uploadUrl", verify_ssl, {
               "filename" => filename,
               "appId" => app_id.to_i,
-            }, headers)
+            }.to_json, headers)
           else 
             response = restclient_post("https://#{host}/v1/apps/uploadUrl", verify_ssl, {
               "filename" => filename
-            }, headers)
+            }.to_json, headers)
           end
 
           
@@ -202,7 +202,7 @@ module Fastlane
           restclient_post("https://#{host}/v1/apps", verify_ssl, {
             "filename" => filename,
             "appPath" => app_path
-          }, headers)
+          }.to_json, headers)
 
         rescue RestClient::Exception => e
           UI.user_error!("Kobiton could not be notified, status code: #{e.response.code}, message: #{e.response.body}")
